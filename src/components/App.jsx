@@ -7,12 +7,16 @@ class App extends React.Component {
       collection: exampleVideoData,
       viewCount: '',
       description: '',
-      likes: ''
+      likes: '',
+      autoplay: false
     };
 
     this.onVideoEntryClick = this.onVideoEntryClick.bind(this);
     this.onSearch = this.onSearch.bind(this);
+    this.onFirstSearch = this.onFirstSearch.bind(this);
+    this.updateView = this.updateView.bind(this);
     this.onGetComment = this.onGetComment.bind(this);
+    this.toggleHandler = this.toggleHandler.bind(this);
     
     this.options = {
       key: window.YOUTUBE_API_KEY,
@@ -30,19 +34,32 @@ class App extends React.Component {
     };
 
   }
+  
+  toggleHandler() {
+    this.setState({autoplay: !this.state.autoplay});
+    console.log(this.state.autoplay);
+  }
 
   onVideoEntryClick(mainVideo) {
     this.setState({currentVideo: mainVideo});
     this.commentOptions.id = mainVideo.id.videoId;
     getYouTubeComment(this.commentOptions, this.onGetComment);
   }
+  
+  updateView() {
+    this.setState({currentVideo: this.state.collection[0]});
+    this.commentOptions.id = this.state.collection[0].id.videoId;
+    getYouTubeComment(this.commentOptions, this.onGetComment);
+  }
 
   onSearch(newCollection) {
-    this.setState({currentVideo: newCollection[0]});
     this.setState({collection: newCollection});
-    this.commentOptions.id = newCollection[0].id.videoId;
-    getYouTubeComment(this.commentOptions, this.onGetComment);
-    //send search request to getYouTubeComments
+    
+  }
+
+  onFirstSearch(newCollection) {
+    this.setState({collection: newCollection});
+    this.updateView();
   }
   
   onGetComment(newComment) {
@@ -53,7 +70,7 @@ class App extends React.Component {
   //comments callback function
 
   componentDidMount() {
-    searchYouTube(this.options, this.onSearch);
+    searchYouTube(this.options, this.onFirstSearch);
   }
 
 
@@ -63,14 +80,17 @@ class App extends React.Component {
         <nav className="navbar">
           <div className="col-md-6 offset-md-3">
             <div>
-              <Search onSearch={this.onSearch}/>
+              <Search onSearch={this.onSearch} updateView={this.updateView}/>
             </div>
+          </div>
+          <div>
+              <ToggleAutoplay toggleHandler={this.toggleHandler}/>
           </div>
         </nav>
         <div className="row">
           <div className="col-md-7">
             <div>
-              <VideoPlayer video={this.state.currentVideo} viewCount={this.state.viewCount} description={this.state.description} likes={this.state.likes}/>
+              <VideoPlayer toggleAutoplay={this.state.autoplay} video={this.state.currentVideo} viewCount={this.state.viewCount} description={this.state.description} likes={this.state.likes}/>
             </div>
           </div>
           <div className="col-md-5">

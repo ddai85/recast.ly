@@ -15,9 +15,11 @@ class Search extends React.Component {
   }
 
   keyPress(event) {
+    searchYouTube(this.state, this.props.onSearch);
     if (event.charCode === 13) {
-      searchYouTube(this.state, this.props.onSearch);
+      this.props.updateView();
     }
+
   }
 
   handleChange(event) {
