@@ -3,15 +3,26 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      currentVideo: false
+      currentVideo: exampleVideoData[0],
+      collection: exampleVideoData
     };
 
     this.onVideoEntryClick = this.onVideoEntryClick.bind(this);
+    this.onSearch = this.onSearch.bind(this);
   }
 
-  onVideoEntryClick(something) {
-    console.log(something);
+  onVideoEntryClick(mainVideo) {
+    this.setState({currentVideo: mainVideo});
   }
+
+  onSearch(newCollection) {
+    this.setState({currentVideo: newCollection[0]});
+    this.setState({collection: newCollection});
+  }
+
+  // componentDidMount() {
+
+  // }
 
   render() {
     return (
@@ -19,20 +30,19 @@ class App extends React.Component {
         <nav className="navbar">
           <div className="col-md-6 offset-md-3">
             <div>
-              <Search/>
+              <Search onSearch={this.onSearch}/>
             </div>
           </div>
         </nav>
         <div className="row">
           <div className="col-md-7">
             <div>
-              <VideoPlayer video={exampleVideoData[0]}/>
+              <VideoPlayer video={this.state.currentVideo}/>
             </div>
           </div>
           <div className="col-md-5">
             <div>
-              <VideoList onVideoEntryClick={this.onVideoEntryClick} videos={exampleVideoData}/>
-
+              <VideoList onVideoEntryClick={this.onVideoEntryClick} videos={this.state.collection}/>
             </div>
           </div>
         </div>
