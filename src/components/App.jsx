@@ -4,51 +4,58 @@ class App extends React.Component {
 
     this.state = {
       currentVideo: exampleVideoData[0],
-      collection: exampleVideoData
+      collection: exampleVideoData,
+      viewCount: '',
+      description: '',
+      likes: ''
     };
 
     this.onVideoEntryClick = this.onVideoEntryClick.bind(this);
     this.onSearch = this.onSearch.bind(this);
-    this.searchYouTube = this.searchYouTube.bind(this);
+    this.onGetComment = this.onGetComment.bind(this);
+    
+    this.options = {
+      key: window.YOUTUBE_API_KEY,
+      maxResults: 5,
+      q: 'dogs', 
+      type: 'video',
+      part: 'snippet'
+    };
+
+    this.commentOptions = {
+      key: window.YOUTUBE_API_KEY,
+      maxResults: 1,
+      part: 'snippet, statistics',
+      id: ''
+    };
+
   }
 
   onVideoEntryClick(mainVideo) {
     this.setState({currentVideo: mainVideo});
+    this.commentOptions.id = mainVideo.id.videoId;
+    getYouTubeComment(this.commentOptions, this.onGetComment);
   }
 
   onSearch(newCollection) {
     this.setState({currentVideo: newCollection[0]});
     this.setState({collection: newCollection});
+    this.commentOptions.id = newCollection[0].id.videoId;
+    getYouTubeComment(this.commentOptions, this.onGetComment);
+    //send search request to getYouTubeComments
   }
+  
+  onGetComment(newComment) {
+    this.setState({viewCount: newComment.statistics.viewCount});
+    this.setState({description: newComment.snippet.description});
+    this.setState({likes: newComment.statistics.likeCount});
+  }
+  //comments callback function
 
   componentDidMount() {
-    this.searchYouTube('dogs');
+    searchYouTube(this.options, this.onSearch);
   }
 
-  searchYouTube(query) {
-    var context = this;
-    $.ajax({
-      type: 'GET',
-      url: 'https://www.googleapis.com/youtube/v3/search',
-      data: {
-        key: window.YOUTUBE_API_KEY,
-        maxResults: 5,
-        q: query, 
-        type: 'video',
-        part: 'snippet'
-      },
-      dataType: 'json',
-      success: function(data) {
-        console.log('success!');
-        var dataArray = data.items;
-
-        context.onSearch(dataArray);
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log('failure', jqXHR, textStatus, errorThrown);
-      }
-    });
-  }
 
   render() {
     return (
@@ -56,14 +63,14 @@ class App extends React.Component {
         <nav className="navbar">
           <div className="col-md-6 offset-md-3">
             <div>
-              <Search searchYouTube={this.searchYouTube} onSearch={this.onSearch}/>
+              <Search onSearch={this.onSearch}/>
             </div>
           </div>
         </nav>
         <div className="row">
           <div className="col-md-7">
             <div>
-              <VideoPlayer video={this.state.currentVideo}/>
+              <VideoPlayer video={this.state.currentVideo} viewCount={this.state.viewCount} description={this.state.description} likes={this.state.likes}/>
             </div>
           </div>
           <div className="col-md-5">

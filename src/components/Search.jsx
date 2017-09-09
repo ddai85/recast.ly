@@ -3,7 +3,11 @@ class Search extends React.Component {
     super(props);
 
     this.state = {
-      query: ''
+      key: window.YOUTUBE_API_KEY,
+      maxResults: 5,
+      q: '', 
+      type: 'video',
+      part: 'snippet'
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -12,20 +16,20 @@ class Search extends React.Component {
 
   keyPress(event) {
     if (event.charCode === 13) {
-      this.props.searchYouTube(this.state.query);
+      searchYouTube(this.state, this.props.onSearch);
     }
   }
 
   handleChange(event) {
-    this.setState({query: event.target.value});
+    this.setState({q: event.target.value});
   }
 
   render() { 
     return (
       <div className="search-bar form-inline">
-        <input className="form-control" type="text" value={this.state.query} onChange={this.handleChange} onKeyPress={this.keyPress}/>
+        <input className="form-control" type="text" onChange={this.handleChange} onKeyPress={this.keyPress}/>
         <button className="btn hidden-sm-down" onClick={() => {
-          this.props.searchYouTube(this.state.query);
+          searchYouTube(this.state, this.props.onSearch);
         }}>
           <span className="glyphicon glyphicon-search"></span>
         </button>
