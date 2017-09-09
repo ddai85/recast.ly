@@ -9,6 +9,7 @@ class App extends React.Component {
 
     this.onVideoEntryClick = this.onVideoEntryClick.bind(this);
     this.onSearch = this.onSearch.bind(this);
+    this.searchYouTube = this.searchYouTube.bind(this);
   }
 
   onVideoEntryClick(mainVideo) {
@@ -20,9 +21,34 @@ class App extends React.Component {
     this.setState({collection: newCollection});
   }
 
-  // componentDidMount() {
+  componentDidMount() {
+    this.searchYouTube('dogs');
+  }
 
-  // }
+  searchYouTube(query) {
+    var context = this;
+    $.ajax({
+      type: 'GET',
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      data: {
+        key: window.YOUTUBE_API_KEY,
+        maxResults: 5,
+        q: query, 
+        type: 'video',
+        part: 'snippet'
+      },
+      dataType: 'json',
+      success: function(data) {
+        console.log('success!');
+        var dataArray = data.items;
+
+        context.onSearch(dataArray);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log('failure', jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
 
   render() {
     return (
@@ -30,7 +56,7 @@ class App extends React.Component {
         <nav className="navbar">
           <div className="col-md-6 offset-md-3">
             <div>
-              <Search onSearch={this.onSearch}/>
+              <Search searchYouTube={this.searchYouTube} onSearch={this.onSearch}/>
             </div>
           </div>
         </nav>
